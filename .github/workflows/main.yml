@@ -1,28 +1,26 @@
-name: "Android Build"
+name: Android Build
 on:
   push:
     branches:
       - main
 
 jobs:
-  build-android:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Node
+      - name: setup node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: aarch64-linux-android
-      - name: Install dependencies
+      - name: install dependencies
         run: npm install
-      - name: Build Android APK
-        run: npx tauri android build --debug
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+      - name: build tauri
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: LimbusManager-APK
-          path: src-tauri/gen/android/app/build/outputs/apk/debug/app-debug.apk
+          tagName: v__VERSION__
+          releaseName: 'Limbus Manager v__VERSION__'
+          releaseBody: 'Automated release from GitHub Actions'
+          distPath: dist
