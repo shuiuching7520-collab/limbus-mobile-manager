@@ -22,8 +22,10 @@ jobs:
           java-version: '17'
 
       - name: setup Android SDK
-        # 自動準備環境
         uses: android-actions/setup-android@v3
+        with:
+          # 強制要求安裝 NDK 零件
+          packages: 'ndk;26.1.10909125'
 
       - name: install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -45,6 +47,6 @@ jobs:
           releaseBody: 'Automated Android Build'
           distPath: dist
           projectPath: src-tauri
-          # 關鍵：加上 init --yes 會自動修補所有缺少的零件
           args: --target android --no-bundle
+          # 讓 Tauri 自動完成剩下的 Android 配置
           beforeBuildCommand: "npx tauri android init --yes"
