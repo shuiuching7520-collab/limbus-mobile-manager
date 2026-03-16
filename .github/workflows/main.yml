@@ -24,7 +24,7 @@ jobs:
       - name: install dependencies
         run: npm install
 
-      - name: build tauri
+      - name: build tauri android
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -34,3 +34,4 @@ jobs:
           releaseBody: 'Automated Android Build'
           distPath: dist
           projectPath: src-tauri
+          args: --target android  # 關鍵：強制指定只編譯 Android 版本
