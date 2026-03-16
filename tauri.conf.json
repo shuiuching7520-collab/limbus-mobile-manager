@@ -1,0 +1,11 @@
+{
+  "productName": "LimbusManager",
+  "identifier": "com.limbus.manager",
+  "build": {
+    "beforeBuildCommand": "npm run build",
+    "distDir": "../dist"
+  },
+  "bundle": {
+    "active": true
+  }
+}
