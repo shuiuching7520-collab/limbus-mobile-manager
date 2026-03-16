@@ -1,0 +1,20 @@
+{
+  "name": "limbus-mobile",
+  "version": "0.1.0",
+  "type": "module",
+  "dependencies": {
+    "@tauri-apps/api": "latest",
+    "@tauri-apps/plugin-dialog": "latest",
+    "@tauri-apps/plugin-fs": "latest",
+    "jszip": "^3.10.1",
+    "lucide-react": "latest",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.20.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "latest",
+    "vite": "^5.0.0"
+  },
+  "scripts": { "build": "vite build" }
+}
