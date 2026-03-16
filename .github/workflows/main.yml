@@ -25,7 +25,7 @@ jobs:
         id: setup-android
         uses: android-actions/setup-android@v3
         with:
-          # 明確要求特定版本的 NDK，這是目前的標準配置
+          # 強制安裝最穩定的 NDK 版本
           packages: 'ndk;26.1.10909125'
 
       - name: install Rust
@@ -33,26 +33,19 @@ jobs:
         with:
           targets: aarch64-linux-android, armv7-linux-androideabi, i686-linux-android, x86_64-linux-android
 
-      - name: install dependencies
-        run: |
-          npm install
-          npm install @tauri-apps/cli@next
-
       - name: build tauri android
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # 雙重鎖定：同時提供 NDK 路徑給不同層級的編譯器
+          # 手動鎖定三個關鍵路徑，讓 Rust 不管找哪個標籤都能找到 NDK
           NDK_HOME: ${{ steps.setup-android.outputs.sdk-path }}/ndk/26.1.10909125
           ANDROID_NDK_HOME: ${{ steps.setup-android.outputs.sdk-path }}/ndk/26.1.10909125
           ANDROID_HOME: ${{ steps.setup-android.outputs.sdk-path }}
         with:
           tagName: v0.1.0
           releaseName: 'Limbus Manager v0.1.0'
-          releaseBody: 'Automated Android Build'
           distPath: dist
           projectPath: src-tauri
-          # 加入 --no-bundle 避開繁雜的簽名驗證
+          # 這次我們把所有準備動作合併在點火前執行，確保環境是乾淨且完整的
+          beforeBuildCommand: "npm install && npm install @tauri-apps/cli@next && npx tauri android init --yes"
           args: --target android --no-bundle
-          # 強制全自動初始化
-          beforeBuildCommand: "npx tauri android init --yes"
