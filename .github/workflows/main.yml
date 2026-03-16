@@ -14,7 +14,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          # 新增：自動緩存 npm 套件以加快速度
           cache: 'npm'
 
       - name: setup Java
@@ -45,7 +44,7 @@ jobs:
           releaseName: 'Limbus Manager v0.1.0'
           distPath: dist
           projectPath: src-tauri
-          # 修正重點：確保 npm install 完整執行，讓 vite 被正確安裝
+          # 確保 Vite 與 Android 環境同時初始化
           beforeBuildCommand: |
             npm install
             npx tauri android init --yes
