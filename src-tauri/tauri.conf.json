@@ -5,16 +5,15 @@
     "beforeBuildCommand": "npm run build",
     "distDir": "../dist"
   },
-  "app": {
-    "security": {
-      "capabilities": [
-        "fs:allow-writeFile",
-        "fs:allow-mkdir",
-        "dialog:allow-open"
-      ]
-    }
-  },
   "bundle": {
     "active": true
+  },
+  "tauri": {
+    "allowlist": {
+      "all": true
+    },
+    "bundle": {
+      "identifier": "com.limbus.manager"
+    }
   }
 }
