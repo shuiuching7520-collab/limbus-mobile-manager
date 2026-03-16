@@ -22,9 +22,10 @@ jobs:
           java-version: '17'
 
       - name: setup Android SDK
+        id: setup-android
         uses: android-actions/setup-android@v3
         with:
-          # 強制要求安裝 NDK 零件
+          # 直接強制安裝特定的 NDK 版本
           packages: 'ndk;26.1.10909125'
 
       - name: install Rust
@@ -41,6 +42,9 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 手動強制指定 NDK 路徑，這是打通 1 分鐘魔咒的關鍵
+          NDK_HOME: ${{ steps.setup-android.outputs.sdk-path }}/ndk/26.1.10909125
+          ANDROID_HOME: ${{ steps.setup-android.outputs.sdk-path }}
         with:
           tagName: v0.1.0
           releaseName: 'Limbus Manager v0.1.0'
@@ -48,5 +52,4 @@ jobs:
           distPath: dist
           projectPath: src-tauri
           args: --target android --no-bundle
-          # 讓 Tauri 自動完成剩下的 Android 配置
           beforeBuildCommand: "npx tauri android init --yes"
