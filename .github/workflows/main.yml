@@ -24,4 +24,3 @@ jobs:
           releaseName: 'Limbus Manager v__VERSION__'
           releaseBody: 'Automated release from GitHub Actions'
           distPath: dist
-          projectPath: .  # 強制在根目錄搜尋 src-tauri
