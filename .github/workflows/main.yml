@@ -25,7 +25,7 @@ jobs:
         id: setup-android
         uses: android-actions/setup-android@v3
         with:
-          # 強制安裝最穩定的 NDK 版本
+          # 直接鎖定版本
           packages: 'ndk;26.1.10909125'
 
       - name: install Rust
@@ -33,19 +33,27 @@ jobs:
         with:
           targets: aarch64-linux-android, armv7-linux-androideabi, i686-linux-android, x86_64-linux-android
 
+      - name: Force Fix Android Config
+        # 這是這份腳本的靈魂：手動建立 NDK 連結，讓系統沒理由找不到
+        run: |
+          ln -sfn ${{ steps.setup-android.outputs.sdk-path }}/ndk/26.1.10909125 ${{ steps.setup-android.outputs.sdk-path }}/ndk-bundle
+          echo "NDK_HOME=${{ steps.setup-android.outputs.sdk-path }}/ndk-bundle" >> $GITHUB_ENV
+          echo "ANDROID_NDK_HOME=${{ steps.setup-android.outputs.sdk-path }}/ndk-bundle" >> $GITHUB_ENV
+
+      - name: install dependencies
+        run: |
+          npm install
+          npm install @tauri-apps/cli@next
+
       - name: build tauri android
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # 手動鎖定三個關鍵路徑，讓 Rust 不管找哪個標籤都能找到 NDK
-          NDK_HOME: ${{ steps.setup-android.outputs.sdk-path }}/ndk/26.1.10909125
-          ANDROID_NDK_HOME: ${{ steps.setup-android.outputs.sdk-path }}/ndk/26.1.10909125
-          ANDROID_HOME: ${{ steps.setup-android.outputs.sdk-path }}
         with:
           tagName: v0.1.0
           releaseName: 'Limbus Manager v0.1.0'
           distPath: dist
           projectPath: src-tauri
-          # 這次我們把所有準備動作合併在點火前執行，確保環境是乾淨且完整的
-          beforeBuildCommand: "npm install && npm install @tauri-apps/cli@next && npx tauri android init --yes"
+          # 加入 --no-bundle 快速產出 APK
           args: --target android --no-bundle
+          beforeBuildCommand: "npx tauri android init --yes"
