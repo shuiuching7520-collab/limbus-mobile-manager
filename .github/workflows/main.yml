@@ -44,4 +44,4 @@ jobs:
           distPath: dist
           projectPath: src-tauri
           args: --target android
-          beforeBuildCommand: "npx tauri android init"
+          beforeBuildCommand: "npx tauri android init --yes"
