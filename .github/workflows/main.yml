@@ -14,7 +14,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          # 清除緩存干擾
           cache: 'npm'
 
       - name: setup Java
@@ -45,8 +44,8 @@ jobs:
           releaseName: 'Limbus Manager v0.1.0'
           distPath: dist
           projectPath: src-tauri
-          # 核心修正：強制重新安裝所有套件，並給予 NDK 最高優先級
+          # 解決 "vite: not found" 的關鍵指令
           beforeBuildCommand: |
-            npm install --force
+            npm install
             npx tauri android init --yes
           args: --target android --no-bundle
