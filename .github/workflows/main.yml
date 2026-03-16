@@ -9,19 +9,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: setup node
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
+
+      - name: install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android, armv7-linux-androideabi, i686-linux-android, x86_64-linux-android
+
       - name: install dependencies
         run: npm install
+
       - name: build tauri
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: v__VERSION__
-          releaseName: 'Limbus Manager v__VERSION__'
-          releaseBody: 'Automated release'
+          tagName: v0.1.0
+          releaseName: 'Limbus Manager v0.1.0'
+          releaseBody: 'Automated Android Build'
           distPath: dist
-          projectPath: src-tauri  # 這行是關鍵：指引機器人進入引擎室
+          projectPath: src-tauri
