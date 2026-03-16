@@ -22,7 +22,7 @@ jobs:
           java-version: '17'
 
       - name: setup Android SDK
-        # 這裡會自動準備好編譯環境
+        # 自動準備環境
         uses: android-actions/setup-android@v3
 
       - name: install Rust
@@ -45,6 +45,6 @@ jobs:
           releaseBody: 'Automated Android Build'
           distPath: dist
           projectPath: src-tauri
-          # 關鍵：加上這行會強制下載缺少的 Android 零件並進行編譯
+          # 關鍵：加上 init --yes 會自動修補所有缺少的零件
           args: --target android --no-bundle
           beforeBuildCommand: "npx tauri android init --yes"
