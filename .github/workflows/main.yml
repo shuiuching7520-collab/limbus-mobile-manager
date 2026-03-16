@@ -16,6 +16,15 @@ jobs:
           node-version: 20
           cache: 'npm'
 
+      - name: setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: setup Android SDK
+        uses: android-actions/setup-android@v3
+
       - name: install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -34,4 +43,4 @@ jobs:
           releaseBody: 'Automated Android Build'
           distPath: dist
           projectPath: src-tauri
-          args: --target android  # 關鍵：強制指定只編譯 Android 版本
+          args: --target android
