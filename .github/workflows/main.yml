@@ -25,7 +25,7 @@ jobs:
         id: setup-android
         uses: android-actions/setup-android@v3
         with:
-          # 直接強制安裝特定的 NDK 版本
+          # 明確要求特定版本的 NDK，這是目前的標準配置
           packages: 'ndk;26.1.10909125'
 
       - name: install Rust
@@ -42,8 +42,9 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # 手動強制指定 NDK 路徑，這是打通 1 分鐘魔咒的關鍵
+          # 雙重鎖定：同時提供 NDK 路徑給不同層級的編譯器
           NDK_HOME: ${{ steps.setup-android.outputs.sdk-path }}/ndk/26.1.10909125
+          ANDROID_NDK_HOME: ${{ steps.setup-android.outputs.sdk-path }}/ndk/26.1.10909125
           ANDROID_HOME: ${{ steps.setup-android.outputs.sdk-path }}
         with:
           tagName: v0.1.0
@@ -51,5 +52,7 @@ jobs:
           releaseBody: 'Automated Android Build'
           distPath: dist
           projectPath: src-tauri
+          # 加入 --no-bundle 避開繁雜的簽名驗證
           args: --target android --no-bundle
+          # 強制全自動初始化
           beforeBuildCommand: "npx tauri android init --yes"
