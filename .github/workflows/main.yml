@@ -22,5 +22,6 @@ jobs:
         with:
           tagName: v__VERSION__
           releaseName: 'Limbus Manager v__VERSION__'
-          releaseBody: 'Automated release from GitHub Actions'
+          releaseBody: 'Automated release'
           distPath: dist
+          projectPath: src-tauri  # 這行是關鍵：指引機器人進入引擎室
