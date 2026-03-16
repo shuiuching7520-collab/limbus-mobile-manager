@@ -25,7 +25,6 @@ jobs:
         id: setup-android
         uses: android-actions/setup-android@v3
         with:
-          # 直接鎖定版本
           packages: 'ndk;26.1.10909125'
 
       - name: install Rust
@@ -33,27 +32,20 @@ jobs:
         with:
           targets: aarch64-linux-android, armv7-linux-androideabi, i686-linux-android, x86_64-linux-android
 
-      - name: Force Fix Android Config
-        # 這是這份腳本的靈魂：手動建立 NDK 連結，讓系統沒理由找不到
-        run: |
-          ln -sfn ${{ steps.setup-android.outputs.sdk-path }}/ndk/26.1.10909125 ${{ steps.setup-android.outputs.sdk-path }}/ndk-bundle
-          echo "NDK_HOME=${{ steps.setup-android.outputs.sdk-path }}/ndk-bundle" >> $GITHUB_ENV
-          echo "ANDROID_NDK_HOME=${{ steps.setup-android.outputs.sdk-path }}/ndk-bundle" >> $GITHUB_ENV
-
-      - name: install dependencies
-        run: |
-          npm install
-          npm install @tauri-apps/cli@next
-
       - name: build tauri android
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NDK_HOME: ${{ steps.setup-android.outputs.sdk-path }}/ndk/26.1.10909125
+          ANDROID_HOME: ${{ steps.setup-android.outputs.sdk-path }}
         with:
           tagName: v0.1.0
           releaseName: 'Limbus Manager v0.1.0'
           distPath: dist
           projectPath: src-tauri
-          # 加入 --no-bundle 快速產出 APK
+          # 靈魂核心：先刪除舊的 Android 生成資料夾，再重新初始化
+          beforeBuildCommand: |
+            rm -rf src-tauri/gen
+            npm install
+            npx tauri android init --yes
           args: --target android --no-bundle
-          beforeBuildCommand: "npx tauri android init --yes"
