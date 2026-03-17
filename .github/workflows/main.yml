@@ -1,56 +1,57 @@
-name: Build Android APK
-
+name: Android Build
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
-  build-android:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: npm
+          node-version: 20
 
-      - name: Setup Java
+      - name: setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: 17
+          distribution: 'zulu'
+          java-version: '17'
 
-      - name: Setup Android SDK
+      - name: setup Android SDK
+        id: setup-android
         uses: android-actions/setup-android@v3
+        with:
+          packages: 'ndk;26.1.10909125'
 
-      - name: Setup Rust
+      - name: install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+          targets: aarch64-linux-android, armv7-linux-androideabi, i686-linux-android, x86_64-linux-android
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install Frontend and Fix Vite
+        # 關鍵修正：直接在系統層級建立 Vite 的捷徑
+        run: |
+          npm install
+          # 強制將專案內的 vite 連結到系統路徑，防止 Tauri 找不到
+          sudo ln -s $(pwd)/node_modules/.bin/vite /usr/local/bin/vite
+          # 檢查一下是否真的裝好了（會在日誌顯示路徑）
+          which vite
 
-      - name: Check Tauri CLI
-        run: npx tauri --version
-
-      - name: Initialize Android project (if needed)
-        run: npx tauri android init
-        continue-on-error: true
-
-      - name: Build frontend
-        run: npm run build
-
-      - name: Build Android APK
-        run: npx tauri android build --apk
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - name: build tauri android
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NDK_HOME: ${{ steps.setup-android.outputs.sdk-path }}/ndk/26.1.10909125
+          ANDROID_HOME: ${{ steps.setup-android.outputs.sdk-path }}
         with:
-          name: tauri-android-apk
-          path: |
-            src-tauri/gen/android/app/build/outputs/apk/**/*.apk
-            src-tauri/gen/android/app/build/outputs/**/*.apk
+          tagName: v0.1.0
+          releaseName: 'Limbus Manager v0.1.0'
+          distPath: dist
+          projectPath: src-tauri
+          # 這裡只做 Android 初始化
+          beforeBuildCommand: "npx tauri android init --yes"
+          args: --target android --no-bundle
