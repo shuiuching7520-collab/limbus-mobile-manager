@@ -33,9 +33,9 @@ jobs:
           targets: aarch64-linux-android, armv7-linux-androideabi, i686-linux-android, x86_64-linux-android
 
       - name: Install Frontend and Sync Versions
+        # 關鍵：強制更新 Rust 的 tauri 套件以匹配前端版本
         run: |
           npm install
-          # 關鍵修正：強制更新 Rust 的 Tauri 套件以對齊前端版本
           cd src-tauri && cargo update -p tauri
           cd ..
           sudo ln -s $(pwd)/node_modules/.bin/vite /usr/local/bin/vite
