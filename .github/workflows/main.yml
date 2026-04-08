@@ -20,6 +20,7 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
+          # 預先裝好編譯所需的所有 Android 架構
           targets: aarch64-linux-android, armv7-linux-androideabi, i686-linux-android, x86_64-linux-android
 
       - name: Install Android SDK & NDK
@@ -37,10 +38,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           projectPath: ./
-          args: --target aarch64-linux-android
+          # 關鍵修正：加入 --apk 參數，避免 Bundle 錯誤
+          args: --target aarch64-linux-android --apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Limbus-Manager-Android
+          # 這是 APK 產出的路徑
           path: src-tauri/gen/android/app/build/outputs/apk/release/*.apk
