@@ -1,37 +1,41 @@
 {
-  "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Limbus Mobile Manager",
-  "version": "0.1.0",
-  "identifier": "com.shiuiching.limbusmobilemanager",
   "build": {
-    "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build",
-    "frontendDist": "../dist"
+    "beforeDevCommand": "npm run dev",
+    "devPath": "http://localhost:1420",
+    "distDir": "../dist"
   },
-  "app": {
-    "windows": [
-      {
-        "title": "Limbus Mobile Manager",
-        "width": 1000,
-        "height": 720
-      }
-    ],
+  "package": {
+    "productName": "Limbus-Manager",
+    "version": "0.1.0"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": true
+    },
+    "bundle": {
+      "active": true,
+      "targets": "all",
+      "identifier": "com.wheek.limbus.manager",
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ]
+    },
     "security": {
       "csp": null
-    }
-  },
-  "bundle": {
-    "active": true,
-    "targets": "all",
-    "android": {
-      "minSdkVersion": 24
     },
-    "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.ico",
-      "icons/icon.icns"
+    "windows": [
+      {
+        "fullscreen": false,
+        "height": 800,
+        "resizable": true,
+        "title": "Limbus Localization Manager",
+        "width": 600
+      }
     ]
   }
 }
