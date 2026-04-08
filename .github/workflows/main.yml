@@ -1,56 +1,49 @@
-name: Android Build
+name: Build Android APK
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: setup node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
-      - name: setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-
-      - name: setup Android SDK
-        id: setup-android
-        uses: android-actions/setup-android@v3
-        with:
-          packages: 'ndk;26.1.10909125'
-
-      - name: install Rust
+      - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
+          # 補上這行，解決你截圖中 "Target does not exist" 的問題
           targets: aarch64-linux-android, armv7-linux-androideabi, i686-linux-android, x86_64-linux-android
 
-      - name: Install Frontend and Force Sync Rust
-        run: |
-          npm install
-          # 核心修正：強制更新所有依賴並修復版本鎖定
-          cd src-tauri
-          cargo update
-          cd ..
-          sudo ln -s $(pwd)/node_modules/.bin/vite /usr/local/bin/vite
+      - name: Install Android SDK & NDK
+        uses: android-actions/setup-android@v3
 
-      - name: build tauri android
+      - name: Install frontend dependencies
+        run: npm install
+
+      # 這裡手動執行 Web Build，避免 tauri-action 出現 "Unexpected Input" 警告
+      - name: Build Web Assets
+        run: npm run build
+
+      - name: Build Android App (Tauri)
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NDK_HOME: ${{ steps.setup-android.outputs.sdk-path }}/ndk/26.1.10909125
-          ANDROID_HOME: ${{ steps.setup-android.outputs.sdk-path }}
         with:
-          tagName: v0.1.0
-          releaseName: 'Limbus Manager v0.1.0'
-          distPath: dist
-          projectPath: src-tauri
-          beforeBuildCommand: "npx tauri android init --yes"
-          args: --target android --no-bundle
+          # 指定編譯目標為 Android
+          args: --target aarch64-linux-android
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Limbus-Manager-Android
+          # 這裡的路徑根據 Tauri 預設產出位置
+          path: src-tauri/gen/android/app/build/outputs/apk/release/*.apk
